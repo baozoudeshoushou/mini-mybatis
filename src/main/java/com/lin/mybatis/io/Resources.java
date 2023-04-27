@@ -1,9 +1,6 @@
 package com.lin.mybatis.io;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 
 /**
@@ -30,7 +27,7 @@ public class Resources {
         return in;
     }
 
-    public static Object getResourceAsReader(String resource) throws IOException {
+    public static Reader getResourceAsReader(String resource) throws IOException {
         Reader reader;
         if (charset == null) {
             reader = new InputStreamReader(getResourceAsStream(resource));
