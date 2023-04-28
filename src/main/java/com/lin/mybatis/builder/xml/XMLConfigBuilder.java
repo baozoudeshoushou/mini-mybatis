@@ -2,6 +2,7 @@ package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.datasource.SimpleDataSource;
 import com.lin.mybatis.exceptions.MybatisException;
+import com.lin.mybatis.io.Resources;
 import com.lin.mybatis.mapping.Environment;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
@@ -9,7 +10,12 @@ import com.lin.mybatis.session.Configuration;
 
 import java.io.Reader;
 import java.sql.DriverManager;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The class for parsing xml configuration
@@ -52,6 +58,7 @@ public class XMLConfigBuilder {
     private void parseConfiguration(XNode root) {
         try {
             environmentsElement(root.evalNode("environments"));
+            mapperElement(root.evalNode("mappers"));
         } catch (Exception e) {
             throw new MybatisException("Error parsing SQL Mapper Configuration", e);
         }
@@ -96,6 +103,39 @@ public class XMLConfigBuilder {
             throw new MybatisException("Environment requires an id attribute.");
         }
         return environment.equals(id);
+    }
+
+    private void mapperElement(XNode parent) throws Exception {
+        if (parent == null) {
+            return;
+        }
+
+        Map<String, XNode> map = new HashMap<>();
+
+        for (XNode child : parent.getChildren()) {
+            String resource = child.getStringAttribute("resource");
+            Reader reader = Resources.getResourceAsReader(resource);
+            XPathParser xPathParser = new XPathParser(reader);
+
+            XNode root = xPathParser.evalNode("/mapper");
+            // namespace
+            String namespace = root.getStringAttribute("namespace");
+
+            // select
+            List<XNode> selectNodes = root.evalNodes("select");
+            for (XNode selectNode : selectNodes) {
+                String id = selectNode.getStringAttribute("id");
+                String parameterType = selectNode.getStringAttribute("parameterType");
+                String resultType = selectNode.getStringAttribute("resultType");
+                String sql = selectNode.getStringBody();
+
+                Pattern pattern = Pattern.compile("(#\\{(.*?)})");
+                Matcher matcher = pattern.matcher(sql);
+
+            }
+
+
+        }
     }
 
 }

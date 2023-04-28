@@ -1,5 +1,6 @@
 package com.lin.mybatis.parsing;
 
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -18,7 +19,7 @@ public class XNode {
 
     private final XPathParser xpathParser;
 
-//    private final String body;
+    private final String body;
 
     private final Properties attributes;
 
@@ -26,7 +27,7 @@ public class XNode {
         this.xpathParser = xpathParser;
         this.node = node;
         this.attributes = parseAttributes(node);
-//        this.body = parseBody(node);
+        this.body = parseBody(node);
     }
 
     public List<XNode> evalNodes(String expression) {
@@ -82,14 +83,37 @@ public class XNode {
         return attributes;
     }
 
+    public String getStringBody() {
+        return getStringBody(null);
+    }
+
+    public String getStringBody(String def) {
+        return body == null ? def : body;
+    }
+
     private String parseBody(Node node) {
         String data = getBodyData(node);
-        // TODO
+        if (data == null) {
+            NodeList children = node.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                data = getBodyData(child);
+                if (data != null) {
+                    break;
+                }
+            }
+        }
         return data;
     }
 
     private String getBodyData(Node child) {
-
+        if (child.getNodeType() == Node.CDATA_SECTION_NODE || child.getNodeType() == Node.TEXT_NODE) {
+            String data = ((CharacterData) child).getData();
+            if (data == null || data.isEmpty()) {
+                return "";
+            }
+            return data;
+        }
         return null;
     }
 
