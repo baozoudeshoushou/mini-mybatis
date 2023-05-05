@@ -117,4 +117,8 @@ public class XNode {
         return null;
     }
 
+    public Node getNode() {
+        return node;
+    }
+
 }
