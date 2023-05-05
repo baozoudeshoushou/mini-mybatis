@@ -16,8 +16,9 @@
             </transactionManager>
             <dataSource type="UNPOOLED">
                 <property name="driver" value="com.mysql.cj.jdbc.Driver" />
-                <property name="url" value="jdbc:hsqldb:mem:call_setters_on_nulls_again" />
-                <property name="username" value="sa" />
+                <property name="url" value="jdbc:mysql://localhost:3306/hibernate_test" />
+                <property name="username" value="root" />
+                <property name="password" value="root" />
             </dataSource>
         </environment>
     </environments>

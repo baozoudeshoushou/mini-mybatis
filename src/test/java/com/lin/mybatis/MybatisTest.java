@@ -1,6 +1,8 @@
 package com.lin.mybatis;
 
+import com.lin.mybatis.entity.SysUser;
 import com.lin.mybatis.io.Resources;
+import com.lin.mybatis.session.SqlSession;
 import com.lin.mybatis.session.SqlSessionFactory;
 import com.lin.mybatis.session.SqlSessionFactoryBuilder;
 import com.lin.mybatis.util.Assert;
@@ -8,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
+import java.util.List;
 
 /**
  * @Author linjiayi5
@@ -29,6 +32,9 @@ public class MybatisTest {
     @Test
     void test() {
         Assert.notNull(sqlSessionFactory, "");
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        List<SysUser> list = sqlSession.selectList("com.lin.mybatis.mapper.UserMapper.queryUserInfoById", 3);
+        System.out.println(list);
     }
 
 }
