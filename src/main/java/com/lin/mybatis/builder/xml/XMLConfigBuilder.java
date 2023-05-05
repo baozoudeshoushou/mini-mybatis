@@ -4,12 +4,13 @@ import com.lin.mybatis.datasource.SimpleDataSource;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
 import com.lin.mybatis.mapping.Environment;
+import com.lin.mybatis.mapping.MappedStatement;
+import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
 import com.lin.mybatis.session.Configuration;
 
 import java.io.Reader;
-import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,31 +111,13 @@ public class XMLConfigBuilder {
             return;
         }
 
-        Map<String, XNode> map = new HashMap<>();
-
         for (XNode child : parent.getChildren()) {
             String resource = child.getStringAttribute("resource");
-            Reader reader = Resources.getResourceAsReader(resource);
-            XPathParser xPathParser = new XPathParser(reader);
-
-            XNode root = xPathParser.evalNode("/mapper");
-            // namespace
-            String namespace = root.getStringAttribute("namespace");
-
-            // select
-            List<XNode> selectNodes = root.evalNodes("select");
-            for (XNode selectNode : selectNodes) {
-                String id = selectNode.getStringAttribute("id");
-                String parameterType = selectNode.getStringAttribute("parameterType");
-                String resultType = selectNode.getStringAttribute("resultType");
-                String sql = selectNode.getStringBody();
-
-                Pattern pattern = Pattern.compile("(#\\{(.*?)})");
-                Matcher matcher = pattern.matcher(sql);
-
+            if (resource != null) {
+                Reader reader = Resources.getResourceAsReader(resource);
+                XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(reader, configuration, resource);
+                xmlMapperBuilder.parse();
             }
-
-
         }
     }
 

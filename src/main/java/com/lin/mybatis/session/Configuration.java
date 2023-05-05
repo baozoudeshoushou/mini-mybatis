@@ -1,9 +1,11 @@
 package com.lin.mybatis.session;
 
 import com.lin.mybatis.mapping.Environment;
+import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.parsing.XNode;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author linjiayi5
@@ -13,14 +15,22 @@ public class Configuration {
 
     protected Environment environment;
 
-    protected Map<String, XNode> mapperElement;
+    protected final Map<String, MappedStatement> mappedStatements = new ConcurrentHashMap<>();
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
 
-    public void setMapperElement(Map<String, XNode> mapperElement) {
-        this.mapperElement = mapperElement;
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public void addMappedStatement(MappedStatement ms) {
+        mappedStatements.put(ms.getId(), ms);
+    }
+
+    public MappedStatement getMappedStatement(String id) {
+        return mappedStatements.get(id);
     }
 
 }
