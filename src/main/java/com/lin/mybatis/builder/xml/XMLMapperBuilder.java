@@ -1,6 +1,7 @@
 package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.exceptions.MybatisException;
+import com.lin.mybatis.io.Resources;
 import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.parsing.XNode;
@@ -37,6 +38,7 @@ public class XMLMapperBuilder {
 
     public void parse() {
         configurationElement(parser.evalNode("/mapper"));
+        bindMapperForNamespace();
     }
 
     private void configurationElement(XNode context) {
@@ -84,6 +86,23 @@ public class XMLMapperBuilder {
             mappedStatement.setParameter(parameter);
 
             configuration.addMappedStatement(mappedStatement);
+        }
+    }
+
+    /**
+     * 为该 namespace 创建 mapper
+     */
+    private void bindMapperForNamespace() {
+        Class<?> boundType = null;
+        try {
+            boundType = Resources.classForName(namespace);
+        }
+        catch (ClassNotFoundException e) {
+            // ignore, bound type is not required
+        }
+
+        if (boundType != null && !configuration.hasMapper(boundType)) {
+            configuration.addMapper(boundType);
         }
     }
 

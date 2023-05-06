@@ -68,7 +68,12 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public Configuration getConfiguration() {
-        return null;
+        return configuration;
+    }
+
+    @Override
+    public <T> T getMapper(Class<T> type) {
+        return configuration.getMapper(type, this);
     }
 
     @Override
