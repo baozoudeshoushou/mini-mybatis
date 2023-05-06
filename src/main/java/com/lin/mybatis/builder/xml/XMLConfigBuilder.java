@@ -2,24 +2,17 @@ package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.datasource.DataSourceFactory;
 import com.lin.mybatis.datasource.HikariDatasourceFactory;
-import com.lin.mybatis.datasource.SimpleDataSource;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
 import com.lin.mybatis.mapping.Environment;
-import com.lin.mybatis.mapping.MappedStatement;
-import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
 import com.lin.mybatis.session.Configuration;
+import com.lin.mybatis.type.TypeAliasRegistry;
 
 import javax.sql.DataSource;
 import java.io.Reader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The class for parsing xml configuration
@@ -37,6 +30,8 @@ public class XMLConfigBuilder {
 
     private String environment;
 
+    protected final TypeAliasRegistry typeAliasRegistry;
+
     public XMLConfigBuilder(Reader reader) {
         this(reader, null);
     }
@@ -46,6 +41,7 @@ public class XMLConfigBuilder {
         this.parser = new XPathParser(reader);
         this.configuration = new Configuration();
         this.environment = environment;
+        this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
     }
 
     public Configuration parse() {
@@ -124,6 +120,10 @@ public class XMLConfigBuilder {
                 xmlMapperBuilder.parse();
             }
         }
+    }
+
+    protected <T> Class<? extends T> resolveAlias(String alias) {
+        return typeAliasRegistry.resolveAlias(alias);
     }
 
 }

@@ -3,6 +3,7 @@ package com.lin.mybatis.session;
 import com.lin.mybatis.binding.MapperRegistry;
 import com.lin.mybatis.mapping.Environment;
 import com.lin.mybatis.mapping.MappedStatement;
+import com.lin.mybatis.type.TypeAliasRegistry;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +19,12 @@ public class Configuration {
     protected final Map<String, MappedStatement> mappedStatements = new ConcurrentHashMap<>();
 
     protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+
+    protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+
+    public Configuration() {
+
+    }
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
@@ -53,6 +60,10 @@ public class Configuration {
 
     public boolean hasMapper(Class<?> type) {
         return mapperRegistry.hasMapper(type);
+    }
+
+    public TypeAliasRegistry getTypeAliasRegistry() {
+        return this.typeAliasRegistry;
     }
 
 }
