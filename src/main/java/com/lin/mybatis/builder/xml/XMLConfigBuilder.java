@@ -1,5 +1,7 @@
 package com.lin.mybatis.builder.xml;
 
+import com.lin.mybatis.datasource.DataSourceFactory;
+import com.lin.mybatis.datasource.HikariDatasourceFactory;
 import com.lin.mybatis.datasource.SimpleDataSource;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
@@ -10,6 +12,7 @@ import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
 import com.lin.mybatis.session.Configuration;
 
+import javax.sql.DataSource;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
@@ -77,19 +80,21 @@ public class XMLConfigBuilder {
         for (XNode child : context.getChildren()) {
             String id = child.getStringAttribute("id");
             if (isSpecifiedEnvironment(id)) {
-                Properties datasourceProperties = dataSourceElement(child.evalNode("dataSource"));
-                SimpleDataSource simpleDataSource = new SimpleDataSource(datasourceProperties);
-                Environment env = new Environment(id, simpleDataSource);
+                DataSourceFactory dataSourceFactory = dataSourceElement(child.evalNode("dataSource"));
+                DataSource dataSource = dataSourceFactory.getDataSource();
+                Environment env = new Environment(id, dataSource);
                 this.configuration.setEnvironment(env);
             }
         }
 
     }
 
-    private Properties dataSourceElement(XNode context) throws Exception {
+    private DataSourceFactory dataSourceElement(XNode context) throws Exception {
         String type = context.getStringAttribute("type");
         Properties properties = context.getChildrenAsProperties();
-        return properties;
+        HikariDatasourceFactory datasourceFactory = new HikariDatasourceFactory();
+        datasourceFactory.setProperties(properties);
+        return datasourceFactory;
     }
 
     /**
