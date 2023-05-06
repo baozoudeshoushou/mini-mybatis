@@ -2,6 +2,7 @@ package com.lin.mybatis;
 
 import com.lin.mybatis.entity.SysUser;
 import com.lin.mybatis.io.Resources;
+import com.lin.mybatis.mapper.SysUserMapper;
 import com.lin.mybatis.session.SqlSession;
 import com.lin.mybatis.session.SqlSessionFactory;
 import com.lin.mybatis.session.SqlSessionFactoryBuilder;
@@ -33,8 +34,16 @@ public class MybatisTest {
     void test() {
         Assert.notNull(sqlSessionFactory, "");
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        List<SysUser> list = sqlSession.selectList("com.lin.mybatis.mapper.UserMapper.queryUserInfoById", 3);
+        List<SysUser> list = sqlSession.selectList("com.lin.mybatis.mapper.SysUserMapper.queryUserInfoById", 3);
         System.out.println(list);
+    }
+
+    @Test
+    void getMapper() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
+        List<SysUser> sysUserList = sysUserMapper.findAll();
+        System.out.println(sysUserList);
     }
 
 }
