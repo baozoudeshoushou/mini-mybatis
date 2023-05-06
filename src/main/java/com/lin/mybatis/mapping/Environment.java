@@ -1,5 +1,6 @@
 package com.lin.mybatis.mapping;
 
+import com.lin.mybatis.transaction.TransactionFactory;
 import com.lin.mybatis.util.Assert;
 
 import javax.sql.DataSource;
@@ -12,12 +13,16 @@ public class Environment {
 
     private final String id;
 
+    private final TransactionFactory transactionFactory;
+
     private final DataSource dataSource;
 
-    public Environment(String id, DataSource dataSource) {
+    public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {
         Assert.notNull(id, "Parameter 'id' must not be null");
+        Assert.notNull(transactionFactory, "Parameter 'transactionFactory' must not be null");
         Assert.notNull(dataSource, "Parameter 'dataSource' must not be null");
         this.id = id;
+        this.transactionFactory = transactionFactory;
         this.dataSource = dataSource;
     }
 

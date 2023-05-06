@@ -1,8 +1,10 @@
 package com.lin.mybatis.session;
 
 import com.lin.mybatis.binding.MapperRegistry;
+import com.lin.mybatis.datasource.HikariDatasourceFactory;
 import com.lin.mybatis.mapping.Environment;
 import com.lin.mybatis.mapping.MappedStatement;
+import com.lin.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.lin.mybatis.type.TypeAliasRegistry;
 
 import java.util.Map;
@@ -23,7 +25,9 @@ public class Configuration {
     protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
 
     public Configuration() {
+        typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
 
+        typeAliasRegistry.registerAlias("HIKARI", HikariDatasourceFactory.class);
     }
 
     public void setEnvironment(Environment environment) {

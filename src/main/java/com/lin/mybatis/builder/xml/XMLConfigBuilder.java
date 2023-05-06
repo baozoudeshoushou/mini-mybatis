@@ -8,6 +8,7 @@ import com.lin.mybatis.mapping.Environment;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
 import com.lin.mybatis.session.Configuration;
+import com.lin.mybatis.transaction.TransactionFactory;
 import com.lin.mybatis.type.TypeAliasRegistry;
 
 import javax.sql.DataSource;
@@ -76,19 +77,27 @@ public class XMLConfigBuilder {
         for (XNode child : context.getChildren()) {
             String id = child.getStringAttribute("id");
             if (isSpecifiedEnvironment(id)) {
+                TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
                 DataSourceFactory dataSourceFactory = dataSourceElement(child.evalNode("dataSource"));
                 DataSource dataSource = dataSourceFactory.getDataSource();
-                Environment env = new Environment(id, dataSource);
+                Environment env = new Environment(id, txFactory, dataSource);
                 this.configuration.setEnvironment(env);
             }
         }
+    }
 
+    private TransactionFactory transactionManagerElement(XNode context) throws Exception {
+        String type = context.getStringAttribute("type");
+        Properties props = context.getChildrenAsProperties();
+        TransactionFactory factory = (TransactionFactory) resolveAlias(type).getDeclaredConstructor().newInstance();
+        factory.setProperties(props);
+        return factory;
     }
 
     private DataSourceFactory dataSourceElement(XNode context) throws Exception {
         String type = context.getStringAttribute("type");
         Properties properties = context.getChildrenAsProperties();
-        HikariDatasourceFactory datasourceFactory = new HikariDatasourceFactory();
+        DataSourceFactory datasourceFactory = (DataSourceFactory) resolveAlias(type).getDeclaredConstructor().newInstance();
         datasourceFactory.setProperties(properties);
         return datasourceFactory;
     }
