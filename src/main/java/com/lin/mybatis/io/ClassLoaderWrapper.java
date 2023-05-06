@@ -52,6 +52,29 @@ public class ClassLoaderWrapper {
         return null;
     }
 
+    /**
+     * Find a class on the classpath (or die trying)
+     *
+     * @param name the class to look for
+     * @return the class
+     * @throws ClassNotFoundException if class not found
+     */
+    public Class<?> classForName(String name) throws ClassNotFoundException {
+        ClassLoader[] classLoaders = getClassLoaders(null);
+        for (ClassLoader classLoader : classLoaders) {
+            if (classLoader != null) {
+                try {
+                    return Class.forName(name, true, classLoader);
+                }
+                catch (ClassNotFoundException e) {
+                    // we'll ignore this until all classloaders fail to locate the class
+                }
+            }
+        }
+
+        throw new ClassNotFoundException("Cannot find class: " + name);
+    }
+
     ClassLoader[] getClassLoaders(ClassLoader classLoader) {
         return new ClassLoader[] { classLoader, defaultClassLoader, Thread.currentThread().getContextClassLoader(),
                 getClass().getClassLoader(), systemClassLoader };
