@@ -2,6 +2,7 @@ package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
+import com.lin.mybatis.mapping.BoundSql;
 import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.parsing.XNode;
@@ -76,14 +77,9 @@ public class XMLMapperBuilder {
                 sql = sql.replace(g1, "?");
             }
 
-            MappedStatement mappedStatement = new MappedStatement();
-            mappedStatement.setConfiguration(configuration);
-            mappedStatement.setId(namespace + "." + id);
-            mappedStatement.setSql(sql);
-            mappedStatement.setSqlCommandType(sqlCommandType);
-            mappedStatement.setParameterType(parameterType);
-            mappedStatement.setResultType(resultType);
-            mappedStatement.setParameter(parameter);
+            String msId = namespace + "." + id;
+            BoundSql boundSql = new BoundSql(sql, parameter, parameterType, resultType);
+            MappedStatement mappedStatement = new MappedStatement(configuration, msId, sqlCommandType, boundSql);
 
             configuration.addMappedStatement(mappedStatement);
         }
