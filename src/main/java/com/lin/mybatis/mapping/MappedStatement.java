@@ -1,12 +1,12 @@
 package com.lin.mybatis.mapping;
 
 import com.lin.mybatis.session.Configuration;
+import com.lin.mybatis.util.Assert;
 
 import java.util.Map;
 
 /**
- * @Author linjiayi5
- * @Date 2023/5/5 16:09:03
+ * @author linjiayi5
  */
 public class MappedStatement {
 
@@ -16,15 +16,21 @@ public class MappedStatement {
 
     private String id;
 
-    private String parameterType;
-
-    private String resultType;
-
     private SqlCommandType sqlCommandType;
 
-    private String sql;
+    private BoundSql boundSql;
 
-    private Map<Integer, String> parameter;
+    public MappedStatement(Configuration configuration, String id, SqlCommandType sqlCommandType, BoundSql boundSql) {
+        Assert.notNull(configuration, "Configuration can not be null");
+        Assert.notNull(id, "Id can not be null");
+        Assert.notNull(sqlCommandType, "SqlCommandType can not be null");
+        Assert.notNull(boundSql, "BoundSql can not be null");
+
+        this.configuration = configuration;
+        this.id = id;
+        this.sqlCommandType = sqlCommandType;
+        this.boundSql = boundSql;
+    }
 
     public String getResource() {
         return resource;
@@ -50,22 +56,6 @@ public class MappedStatement {
         this.id = id;
     }
 
-    public String getParameterType() {
-        return parameterType;
-    }
-
-    public void setParameterType(String parameterType) {
-        this.parameterType = parameterType;
-    }
-
-    public String getResultType() {
-        return resultType;
-    }
-
-    public void setResultType(String resultType) {
-        this.resultType = resultType;
-    }
-
     public SqlCommandType getSqlCommandType() {
         return sqlCommandType;
     }
@@ -74,20 +64,8 @@ public class MappedStatement {
         this.sqlCommandType = sqlCommandType;
     }
 
-    public String getSql() {
-        return sql;
-    }
-
-    public void setSql(String sql) {
-        this.sql = sql;
-    }
-
-    public Map<Integer, String> getParameter() {
-        return parameter;
-    }
-
-    public void setParameter(Map<Integer, String> parameter) {
-        this.parameter = parameter;
+    public BoundSql getBoundSql() {
+        return boundSql;
     }
 
 }

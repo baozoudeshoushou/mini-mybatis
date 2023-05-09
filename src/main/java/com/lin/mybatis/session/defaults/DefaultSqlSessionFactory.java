@@ -1,12 +1,15 @@
 package com.lin.mybatis.session.defaults;
 
+import com.lin.mybatis.executor.Executor;
+import com.lin.mybatis.mapping.Environment;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.session.SqlSession;
 import com.lin.mybatis.session.SqlSessionFactory;
+import com.lin.mybatis.transaction.Transaction;
+import com.lin.mybatis.transaction.TransactionFactory;
 
 /**
- * @Author linjiayi5
- * @Date 2023/4/26 16:26:50
+ * @author linjiayi5
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
@@ -18,12 +21,17 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
     @Override
     public SqlSession openSession() {
-        return new DefaultSqlSession(configuration);
+        Environment environment = configuration.getEnvironment();
+        TransactionFactory transactionFactory = environment.getTransactionFactory();
+        boolean autoCommit = false;
+        Transaction tx = transactionFactory.newTransaction(environment.getDataSource(), null, autoCommit);
+        Executor executor = configuration.newExecutor(tx);
+        return new DefaultSqlSession(configuration, executor, autoCommit);
     }
 
     @Override
     public Configuration getConfiguration() {
-        return null;
+        return configuration;
     }
 
 }

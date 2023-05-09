@@ -2,8 +2,16 @@ package com.lin.mybatis.session;
 
 import com.lin.mybatis.binding.MapperRegistry;
 import com.lin.mybatis.datasource.HikariDatasourceFactory;
+import com.lin.mybatis.executor.Executor;
+import com.lin.mybatis.executor.SimpleExecutor;
+import com.lin.mybatis.executor.resultset.DefaultResultSetHandler;
+import com.lin.mybatis.executor.resultset.ResultSetHandler;
+import com.lin.mybatis.mapping.BoundSql;
 import com.lin.mybatis.mapping.Environment;
 import com.lin.mybatis.mapping.MappedStatement;
+import com.lin.mybatis.statement.PreparedStatementHandler;
+import com.lin.mybatis.statement.StatementHandler;
+import com.lin.mybatis.transaction.Transaction;
 import com.lin.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.lin.mybatis.type.TypeAliasRegistry;
 
@@ -68,6 +76,18 @@ public class Configuration {
 
     public TypeAliasRegistry getTypeAliasRegistry() {
         return this.typeAliasRegistry;
+    }
+
+    public Executor newExecutor(Transaction tx) {
+        return new SimpleExecutor(this, tx);
+    }
+
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, ms, parameter, resultHandler, boundSql);
+    }
+
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
+        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
     }
 
 }
