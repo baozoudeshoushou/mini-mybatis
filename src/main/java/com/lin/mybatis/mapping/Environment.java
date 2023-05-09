@@ -30,6 +30,10 @@ public class Environment {
         return this.id;
     }
 
+    public TransactionFactory getTransactionFactory() {
+        return this.transactionFactory;
+    }
+
     public DataSource getDataSource() {
         return this.dataSource;
     }
