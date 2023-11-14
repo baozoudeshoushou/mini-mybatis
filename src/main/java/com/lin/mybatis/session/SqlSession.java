@@ -70,4 +70,7 @@ public interface SqlSession extends Closeable {
      */
     <T> T getMapper(Class<T> type);
 
+    @Override
+    void close();
+
 }

@@ -1,8 +1,10 @@
 package com.lin.mybatis.mapping;
 
+import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.util.Assert;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -16,20 +18,38 @@ public class MappedStatement {
 
     private String id;
 
+    private SqlSource sqlSource;
+
     private SqlCommandType sqlCommandType;
 
-    private BoundSql boundSql;
+    Class<?> resultType;
 
-    public MappedStatement(Configuration configuration, String id, SqlCommandType sqlCommandType, BoundSql boundSql) {
-        Assert.notNull(configuration, "Configuration can not be null");
-        Assert.notNull(id, "Id can not be null");
-        Assert.notNull(sqlCommandType, "SqlCommandType can not be null");
-        Assert.notNull(boundSql, "BoundSql can not be null");
+    private LanguageDriver lang;
 
-        this.configuration = configuration;
-        this.id = id;
-        this.sqlCommandType = sqlCommandType;
-        this.boundSql = boundSql;
+    MappedStatement() {
+        // constructor disabled
+    }
+
+    public static class Builder {
+        private final MappedStatement mappedStatement = new MappedStatement();
+
+        public Builder(Configuration configuration, String id, SqlSource sqlSource, SqlCommandType sqlCommandType, Class<?> resultType) {
+            mappedStatement.configuration = configuration;
+            mappedStatement.id = id;
+            mappedStatement.sqlSource = sqlSource;
+            mappedStatement.sqlCommandType = sqlCommandType;
+            mappedStatement.resultType = resultType;
+            mappedStatement.lang = configuration.getDefaultScriptingLanguageInstance();
+        }
+
+        public MappedStatement build() {
+            assert mappedStatement.configuration != null;
+            assert mappedStatement.id != null;
+            assert mappedStatement.sqlSource != null;
+            assert mappedStatement.lang != null;
+            return mappedStatement;
+        }
+
     }
 
     public String getResource() {
@@ -64,8 +84,16 @@ public class MappedStatement {
         this.sqlCommandType = sqlCommandType;
     }
 
-    public BoundSql getBoundSql() {
-        return boundSql;
+    public BoundSql getBoundSql(Object parameterObject) {
+        return sqlSource.getBoundSql(parameterObject);
+    }
+
+    public Class<?> getResultType() {
+        return resultType;
+    }
+
+    public LanguageDriver getLang() {
+        return lang;
     }
 
 }

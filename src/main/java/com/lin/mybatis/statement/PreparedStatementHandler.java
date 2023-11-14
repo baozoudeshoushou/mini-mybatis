@@ -30,9 +30,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     @Override
     public void parameterize(Statement statement) throws SQLException {
         PreparedStatement ps = (PreparedStatement) statement;
-        if (parameterObject != null) {
-            ps.setLong(1, (Long) parameterObject);
-        }
+        parameterHandler.setParameters(ps);
     }
 
     @Override

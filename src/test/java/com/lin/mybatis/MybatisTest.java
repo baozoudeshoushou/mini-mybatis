@@ -24,26 +24,9 @@ public class MybatisTest {
     @BeforeAll
     static void setUp() throws Exception {
         // create an SqlSessionFactory
-        try (Reader reader = Resources
-                .getResourceAsReader("mybatis-config.xml")) {
+        try (Reader reader = Resources.getResourceAsReader("mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
         }
-    }
-
-    @Test
-    void test() {
-        Assert.notNull(sqlSessionFactory, "");
-        SqlSession sqlSession = sqlSessionFactory.openSession();
-        List<SysUser> list = sqlSession.selectList("com.lin.mybatis.mapper.SysUserMapper.queryUserInfoById", 3);
-        System.out.println(list);
-    }
-
-    @Test
-    void getMapper() {
-        SqlSession sqlSession = sqlSessionFactory.openSession();
-        SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
-        List<SysUser> sysUserList = sysUserMapper.findAll();
-        System.out.println(sysUserList);
     }
 
 }

@@ -56,7 +56,7 @@ public class DefaultSqlSession implements SqlSession {
     public <E> List<E> selectList(String statement, Object parameter) {
         MappedStatement ms = configuration.getMappedStatement(statement);
         try {
-            return executor.query(ms, parameter, Executor.NO_RESULT_HANDLER, ms.getBoundSql());
+            return executor.query(ms, parameter, Executor.NO_RESULT_HANDLER, ms.getBoundSql(parameter));
         } catch (SQLException e) {
             throw new MybatisException("Error querying database.", e);
         }
@@ -73,8 +73,12 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
+        executor.close(isCommitOrRollbackRequired(false));
+    }
 
+    private boolean isCommitOrRollbackRequired(boolean force) {
+        return !autoCommit || force;
     }
 
 }

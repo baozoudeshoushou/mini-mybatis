@@ -1,5 +1,6 @@
 package com.lin.mybatis.builder.xml;
 
+import com.lin.mybatis.builder.BaseBuilder;
 import com.lin.mybatis.datasource.DataSourceFactory;
 import com.lin.mybatis.datasource.HikariDatasourceFactory;
 import com.lin.mybatis.exceptions.MybatisException;
@@ -21,13 +22,11 @@ import java.util.Properties;
  * @Author linjiayi5
  * @Date 2023/4/26 16:35:29
  */
-public class XMLConfigBuilder {
+public class XMLConfigBuilder extends BaseBuilder {
 
     private boolean parsed;
 
     private final XPathParser parser;
-
-    protected final Configuration configuration;
 
     private String environment;
 
@@ -38,9 +37,9 @@ public class XMLConfigBuilder {
     }
 
     public XMLConfigBuilder(Reader reader, String environment) {
+        super(new Configuration());
         this.parsed = false;
         this.parser = new XPathParser(reader);
-        this.configuration = new Configuration();
         this.environment = environment;
         this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
     }

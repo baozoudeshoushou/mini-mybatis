@@ -1,5 +1,6 @@
 package com.lin.mybatis.builder.xml;
 
+import com.lin.mybatis.builder.BaseBuilder;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
 import com.lin.mybatis.mapping.BoundSql;
@@ -21,25 +22,27 @@ import java.util.regex.Pattern;
  * @Author linjiayi5
  * @Date 2023/5/5 20:04:36
  */
-public class XMLMapperBuilder {
+public class XMLMapperBuilder extends BaseBuilder {
 
     private final XPathParser parser;
-
-    protected final Configuration configuration;
 
     protected String namespace;
 
     private final String resource;
 
     public XMLMapperBuilder(Reader reader, Configuration configuration, String resource) {
-        this.parser = new XPathParser(reader);;
-        this.configuration = configuration;
+        super(configuration);
+        this.parser = new XPathParser(reader);
         this.resource = resource;
     }
 
     public void parse() {
-        configurationElement(parser.evalNode("/mapper"));
-        bindMapperForNamespace();
+        if (!configuration.isResourceLoaded(resource)) {
+            configurationElement(parser.evalNode("/mapper"));
+            // 防止重复加载
+            configuration.addLoadedResource(resource);
+            bindMapperForNamespace();
+        }
     }
 
     private void configurationElement(XNode context) {
@@ -53,35 +56,8 @@ public class XMLMapperBuilder {
 
     private void buildStatementFromContext(List<XNode> list) {
         for (XNode context : list) {
-            String nodeName = context.getNode().getNodeName();
-            SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
-            boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
-
-            // 先只处理 SELECT
-            if (!isSelect) {
-                continue;
-            }
-
-            String id = context.getStringAttribute("id");
-            String parameterType = context.getStringAttribute("parameterType");
-            String resultType = context.getStringAttribute("resultType");
-            String sql = context.getStringBody();
-
-            Map<Integer, String> parameter = new HashMap<>();
-            Pattern pattern = Pattern.compile("(#\\{(.*?)})");
-            Matcher matcher = pattern.matcher(sql);
-            for (int i = 1; matcher.find(); i++) {
-                String g1 = matcher.group(1);
-                String g2 = matcher.group(2);
-                parameter.put(i, g2);
-                sql = sql.replace(g1, "?");
-            }
-
-            String msId = namespace + "." + id;
-            BoundSql boundSql = new BoundSql(sql, parameter, parameterType, resultType);
-            MappedStatement mappedStatement = new MappedStatement(configuration, msId, sqlCommandType, boundSql);
-
-            configuration.addMappedStatement(mappedStatement);
+            XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, context, namespace);
+            statementParser.parseStatementNode();
         }
     }
 
