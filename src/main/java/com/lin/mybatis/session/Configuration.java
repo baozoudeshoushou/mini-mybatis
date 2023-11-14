@@ -20,8 +20,8 @@ import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.scripting.LanguageDriverRegistry;
 import com.lin.mybatis.scripting.xmltags.XMLLanguageDriver;
-import com.lin.mybatis.statement.PreparedStatementHandler;
-import com.lin.mybatis.statement.StatementHandler;
+import com.lin.mybatis.executor.statement.PreparedStatementHandler;
+import com.lin.mybatis.executor.statement.StatementHandler;
 import com.lin.mybatis.transaction.Transaction;
 import com.lin.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.lin.mybatis.type.TypeAliasRegistry;
@@ -142,8 +142,13 @@ public class Configuration {
         return new PreparedStatementHandler(executor, ms, parameter, resultHandler, boundSql);
     }
 
-    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
-        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement,
+                                                ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) {
+        ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler,
+                resultHandler, boundSql);
+        // TODO
+//        return (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
+        return resultSetHandler;
     }
 
     public TypeHandlerRegistry getTypeHandlerRegistry() {

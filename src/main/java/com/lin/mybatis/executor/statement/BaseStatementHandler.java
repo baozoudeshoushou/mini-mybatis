@@ -1,4 +1,4 @@
-package com.lin.mybatis.statement;
+package com.lin.mybatis.executor.statement;
 
 import com.lin.mybatis.executor.Executor;
 import com.lin.mybatis.executor.parameter.ParameterHandler;
@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * @Author linjiayi5
- * @Date 2023/5/6 16:55:32
+ * @author linjiayi5
+ * @date 2023/5/6
  */
 public abstract class BaseStatementHandler implements StatementHandler {
 
@@ -37,10 +37,14 @@ public abstract class BaseStatementHandler implements StatementHandler {
         this.configuration = mappedStatement.getConfiguration();
         this.executor = executor;
         this.mappedStatement = mappedStatement;
+
+        if (boundSql == null) {
+            boundSql = mappedStatement.getBoundSql(parameterObject);
+        }
         this.boundSql = boundSql;
 
         this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
-        this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, boundSql);
+        this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql);
 
         this.parameterObject = parameterObject;
     }

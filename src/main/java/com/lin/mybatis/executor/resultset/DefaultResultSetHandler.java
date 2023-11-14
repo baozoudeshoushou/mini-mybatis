@@ -1,8 +1,10 @@
 package com.lin.mybatis.executor.resultset;
 
 import com.lin.mybatis.executor.Executor;
+import com.lin.mybatis.executor.parameter.ParameterHandler;
 import com.lin.mybatis.mapping.BoundSql;
 import com.lin.mybatis.mapping.MappedStatement;
+import com.lin.mybatis.session.ResultHandler;
 
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -15,13 +17,23 @@ import java.util.List;
  */
 public class DefaultResultSetHandler implements ResultSetHandler {
 
-    private final BoundSql boundSql;
+    private final Executor executor;
 
     private final MappedStatement mappedStatement;
 
-    public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
-        this.boundSql = boundSql;
+    private final ParameterHandler parameterHandler;
+
+    private final ResultHandler<?> resultHandler;
+
+    private final BoundSql boundSql;
+
+    public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, ParameterHandler parameterHandler,
+                                   ResultHandler<?> resultHandler, BoundSql boundSql) {
+        this.executor = executor;
         this.mappedStatement = mappedStatement;
+        this.parameterHandler = parameterHandler;
+        this.resultHandler = resultHandler;
+        this.boundSql = boundSql;
     }
 
     @Override
