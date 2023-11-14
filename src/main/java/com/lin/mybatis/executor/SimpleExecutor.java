@@ -4,7 +4,7 @@ import com.lin.mybatis.mapping.BoundSql;
 import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.session.ResultHandler;
-import com.lin.mybatis.statement.StatementHandler;
+import com.lin.mybatis.executor.statement.StatementHandler;
 import com.lin.mybatis.transaction.Transaction;
 
 import java.sql.Connection;

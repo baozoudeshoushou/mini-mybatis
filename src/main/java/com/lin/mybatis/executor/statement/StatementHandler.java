@@ -1,4 +1,4 @@
-package com.lin.mybatis.statement;
+package com.lin.mybatis.executor.statement;
 
 import com.lin.mybatis.session.ResultHandler;
 
