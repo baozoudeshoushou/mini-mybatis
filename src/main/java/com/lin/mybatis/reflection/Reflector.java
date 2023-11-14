@@ -279,6 +279,10 @@ public class Reflector {
         return type;
     }
 
+    public boolean hasDefaultConstructor() {
+        return defaultConstructor != null;
+    }
+
     public Invoker getSetInvoker(String propertyName) {
         Invoker method = setMethods.get(propertyName);
         if (method == null) {
