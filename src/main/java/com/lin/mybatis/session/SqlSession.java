@@ -52,6 +52,17 @@ public interface SqlSession extends Closeable {
     <E> List<E> selectList(String statement, Object parameter);
 
     /**
+     * Retrieve a list of mapped objects from the statement key and parameter, within the specified row bounds.
+     *
+     * @param <E> the returned list element type
+     * @param statement Unique identifier matching the statement to use.
+     * @param parameter A parameter object to pass to the statement.
+     * @param rowBounds Bounds to limit object retrieval
+     * @return List of mapped object
+     */
+    <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds);
+
+    /**
      * Retrieves current configuration.
      *
      * @return Configuration

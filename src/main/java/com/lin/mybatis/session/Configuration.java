@@ -138,11 +138,12 @@ public class Configuration {
         return new SimpleExecutor(this, tx);
     }
 
-    public StatementHandler newStatementHandler(Executor executor, MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
-        return new PreparedStatementHandler(executor, ms, parameter, resultHandler, boundSql);
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement ms,
+                                                Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, ms, parameter, rowBounds, resultHandler, boundSql);
     }
 
-    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement,
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds,
                                                 ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) {
         ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler,
                 resultHandler, boundSql);

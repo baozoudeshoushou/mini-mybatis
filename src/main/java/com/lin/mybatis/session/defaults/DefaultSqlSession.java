@@ -4,6 +4,8 @@ import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.executor.Executor;
 import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.session.Configuration;
+import com.lin.mybatis.session.ResultHandler;
+import com.lin.mybatis.session.RowBounds;
 import com.lin.mybatis.session.SqlSession;
 
 import java.io.IOException;
@@ -49,14 +51,23 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <E> List<E> selectList(String statement) {
-        return selectList(statement, null);
+        return this.selectList(statement, null);
     }
 
     @Override
     public <E> List<E> selectList(String statement, Object parameter) {
+        return this.selectList(statement, parameter, RowBounds.DEFAULT);
+    }
+
+    @Override
+    public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
+        return selectList(statement, parameter, rowBounds, Executor.NO_RESULT_HANDLER);
+    }
+
+    private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
         MappedStatement ms = configuration.getMappedStatement(statement);
         try {
-            return executor.query(ms, parameter, Executor.NO_RESULT_HANDLER, ms.getBoundSql(parameter));
+            return executor.query(ms, parameter, rowBounds, handler);
         } catch (SQLException e) {
             throw new MybatisException("Error querying database.", e);
         }

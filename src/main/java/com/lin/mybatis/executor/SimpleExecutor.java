@@ -5,6 +5,7 @@ import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.session.ResultHandler;
 import com.lin.mybatis.executor.statement.StatementHandler;
+import com.lin.mybatis.session.RowBounds;
 import com.lin.mybatis.transaction.Transaction;
 
 import java.sql.Connection;
@@ -22,9 +23,10 @@ public class SimpleExecutor extends BaseExecutor {
     }
 
     @Override
-    protected <E> List<E> doQuery(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
+    protected <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds,
+                                  ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
         Configuration configuration = ms.getConfiguration();
-        StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, resultHandler, boundSql);
+        StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
         Connection connection = transaction.getConnection();
         Statement stmt = handler.prepare(connection, transaction.getTimeout());
         handler.parameterize(stmt);

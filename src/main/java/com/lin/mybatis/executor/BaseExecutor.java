@@ -5,6 +5,7 @@ import com.lin.mybatis.mapping.BoundSql;
 import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.session.ResultHandler;
+import com.lin.mybatis.session.RowBounds;
 import com.lin.mybatis.transaction.Transaction;
 
 import java.sql.SQLException;
@@ -30,15 +31,23 @@ public abstract class BaseExecutor implements Executor {
         this.wrapper = this;
     }
 
+
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+        BoundSql boundSql = ms.getBoundSql(parameter);
+        return query(ms, parameter, rowBounds, resultHandler, boundSql);
+    }
+
+    @Override
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
         if (closed) {
             throw new MybatisException("Executor was closed.");
         }
-        return doQuery(ms, parameter, resultHandler, boundSql);
+        return doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
     }
 
-    protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) throws SQLException;
+    protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds,
+                                           ResultHandler resultHandler, BoundSql boundSql) throws SQLException;
 
     @Override
     public void commit(boolean required) throws SQLException {
