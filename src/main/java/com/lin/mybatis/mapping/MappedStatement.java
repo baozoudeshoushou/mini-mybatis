@@ -4,7 +4,9 @@ import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.util.Assert;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +21,8 @@ public class MappedStatement {
     private String id;
 
     private SqlSource sqlSource;
+
+    private List<ResultMap> resultMaps;
 
     private SqlCommandType sqlCommandType;
 
@@ -37,9 +41,15 @@ public class MappedStatement {
             mappedStatement.configuration = configuration;
             mappedStatement.id = id;
             mappedStatement.sqlSource = sqlSource;
+            mappedStatement.resultMaps = new ArrayList<>();
             mappedStatement.sqlCommandType = sqlCommandType;
             mappedStatement.resultType = resultType;
             mappedStatement.lang = configuration.getDefaultScriptingLanguageInstance();
+        }
+
+        public Builder resultMaps(List<ResultMap> resultMaps) {
+            mappedStatement.resultMaps = resultMaps;
+            return this;
         }
 
         public MappedStatement build() {
@@ -94,6 +104,10 @@ public class MappedStatement {
 
     public LanguageDriver getLang() {
         return lang;
+    }
+
+    public List<ResultMap> getResultMaps() {
+        return resultMaps;
     }
 
 }

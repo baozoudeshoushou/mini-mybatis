@@ -146,7 +146,7 @@ public class Configuration {
     public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds,
                                                 ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) {
         ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler,
-                resultHandler, boundSql);
+                resultHandler, boundSql, rowBounds);
         // TODO
 //        return (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
         return resultSetHandler;
@@ -194,6 +194,10 @@ public class Configuration {
 
     public void setDatabaseId(String databaseId) {
         this.databaseId = databaseId;
+    }
+
+    public ObjectFactory getObjectFactory() {
+        return objectFactory;
     }
 
 }

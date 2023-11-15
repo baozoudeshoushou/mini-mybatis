@@ -1,37 +1,30 @@
 package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.builder.BaseBuilder;
+import com.lin.mybatis.builder.MapperBuilderAssistant;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
-import com.lin.mybatis.mapping.BoundSql;
-import com.lin.mybatis.mapping.MappedStatement;
-import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
 import com.lin.mybatis.session.Configuration;
 
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * @Author linjiayi5
- * @Date 2023/5/5 20:04:36
+ * @author linjiayi5
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
     private final XPathParser parser;
 
-    protected String namespace;
+    private final MapperBuilderAssistant builderAssistant;
 
     private final String resource;
 
     public XMLMapperBuilder(Reader reader, Configuration configuration, String resource) {
         super(configuration);
+        this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
         this.parser = new XPathParser(reader);
         this.resource = resource;
     }
@@ -50,13 +43,13 @@ public class XMLMapperBuilder extends BaseBuilder {
         if (namespace == null || namespace.isEmpty()) {
             throw new MybatisException("Mapper's namespace cannot be empty");
         }
-        this.namespace = namespace;
+        builderAssistant.setCurrentNamespace(namespace);
         buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     }
 
     private void buildStatementFromContext(List<XNode> list) {
         for (XNode context : list) {
-            XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, context, namespace);
+            XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context);
             statementParser.parseStatementNode();
         }
     }
@@ -65,16 +58,20 @@ public class XMLMapperBuilder extends BaseBuilder {
      * 为该 namespace 创建 mapper
      */
     private void bindMapperForNamespace() {
-        Class<?> boundType = null;
-        try {
-            boundType = Resources.classForName(namespace);
-        }
-        catch (ClassNotFoundException e) {
-            // ignore, bound type is not required
-        }
+        String namespace = builderAssistant.getCurrentNamespace();
+        if (namespace != null) {
+            Class<?> boundType = null;
+            try {
+                boundType = Resources.classForName(namespace);
+            }
+            catch (ClassNotFoundException e) {
+                // ignore, bound type is not required
+            }
 
-        if (boundType != null && !configuration.hasMapper(boundType)) {
-            configuration.addMapper(boundType);
+            if (boundType != null && !configuration.hasMapper(boundType)) {
+                configuration.addMapper(boundType);
+                configuration.addLoadedResource("namespace:" + namespace);
+            }
         }
     }
 

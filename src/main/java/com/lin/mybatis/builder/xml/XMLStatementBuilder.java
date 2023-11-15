@@ -1,34 +1,28 @@
 package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.builder.BaseBuilder;
-import com.lin.mybatis.mapping.BoundSql;
-import com.lin.mybatis.mapping.MappedStatement;
+import com.lin.mybatis.builder.MapperBuilderAssistant;
 import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.mapping.SqlSource;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.session.Configuration;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * @Author linjiayi5
- * @Date 2023/5/23 16:47:35
+ * @author linjiayi5
  */
 public class XMLStatementBuilder extends BaseBuilder {
 
+    private final MapperBuilderAssistant builderAssistant;
+
     private final XNode context;
 
-    private final String namespace;
-
-    public XMLStatementBuilder(Configuration configuration, XNode context, String namespace) {
+    public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, XNode context) {
         super(configuration);
+        this.builderAssistant = builderAssistant;
         this.context = context;
-        this.namespace = namespace;
     }
 
     public void parseStatementNode() {
@@ -56,13 +50,13 @@ public class XMLStatementBuilder extends BaseBuilder {
         String resultType = context.getStringAttribute("resultType");
         Class<?> resultTypeClass = resolveClass(resultType);
 
+        String resultMap = context.getStringAttribute("resultMap");
+
+        // 解析成 SqlSource. DynamicSqlSource/RawSqlSource
         SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
 
-        String msId = namespace + "." + id;
-
-        MappedStatement mappedStatement = new MappedStatement.Builder(configuration, msId, sqlSource, sqlCommandType, resultTypeClass).build();
-
-        configuration.addMappedStatement(mappedStatement);
+        builderAssistant.addMappedStatement(id, sqlSource, sqlCommandType,
+                parameterTypeClass, resultMap, resultTypeClass, databaseId, langDriver);
     }
 
     private LanguageDriver getLanguageDriver(String lang) {
