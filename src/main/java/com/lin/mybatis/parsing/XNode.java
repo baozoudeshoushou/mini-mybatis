@@ -47,6 +47,42 @@ public class XNode {
         return value == null ? def : value;
     }
 
+    public Integer getIntAttribute(String name) {
+        return getIntAttribute(name, null);
+    }
+
+    public Integer getIntAttribute(String name, Integer def) {
+        String value = attributes.getProperty(name);
+        return value == null ? def : Integer.valueOf(value);
+    }
+
+    public Long getLongAttribute(String name) {
+        return getLongAttribute(name, null);
+    }
+
+    public Long getLongAttribute(String name, Long def) {
+        String value = attributes.getProperty(name);
+        return value == null ? def : Long.valueOf(value);
+    }
+
+    public Double getDoubleAttribute(String name) {
+        return getDoubleAttribute(name, null);
+    }
+
+    public Double getDoubleAttribute(String name, Double def) {
+        String value = attributes.getProperty(name);
+        return value == null ? def : Double.valueOf(value);
+    }
+
+    public Float getFloatAttribute(String name) {
+        return getFloatAttribute(name, null);
+    }
+
+    public Float getFloatAttribute(String name, Float def) {
+        String value = attributes.getProperty(name);
+        return value == null ? def : Float.valueOf(value);
+    }
+
     public List<XNode> getChildren() {
         List<XNode> children = new ArrayList<>();
         NodeList nodeList = node.getChildNodes();
