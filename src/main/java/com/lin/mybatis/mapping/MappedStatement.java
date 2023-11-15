@@ -20,6 +20,10 @@ public class MappedStatement {
 
     private String id;
 
+    private Integer fetchSize;
+
+    private Integer timeout;
+
     private SqlSource sqlSource;
 
     private List<ResultMap> resultMaps;
@@ -49,6 +53,16 @@ public class MappedStatement {
 
         public Builder resultMaps(List<ResultMap> resultMaps) {
             mappedStatement.resultMaps = resultMaps;
+            return this;
+        }
+
+        public Builder fetchSize(Integer fetchSize) {
+            mappedStatement.fetchSize = fetchSize;
+            return this;
+        }
+
+        public Builder timeout(Integer timeout) {
+            mappedStatement.timeout = timeout;
             return this;
         }
 
@@ -84,6 +98,14 @@ public class MappedStatement {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Integer getFetchSize() {
+        return fetchSize;
+    }
+
+    public Integer getTimeout() {
+        return timeout;
     }
 
     public SqlCommandType getSqlCommandType() {

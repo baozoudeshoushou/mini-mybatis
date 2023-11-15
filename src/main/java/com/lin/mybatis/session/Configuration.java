@@ -39,6 +39,10 @@ public class Configuration {
 
     protected Environment environment;
 
+    protected Integer defaultStatementTimeout;
+
+    protected Integer defaultFetchSize;
+
     protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 
     protected final Map<String, MappedStatement> mappedStatements = new ConcurrentHashMap<>();
@@ -198,6 +202,32 @@ public class Configuration {
 
     public ObjectFactory getObjectFactory() {
         return objectFactory;
+    }
+
+    public Integer getDefaultStatementTimeout() {
+        return defaultStatementTimeout;
+    }
+
+    public void setDefaultStatementTimeout(Integer defaultStatementTimeout) {
+        this.defaultStatementTimeout = defaultStatementTimeout;
+    }
+
+    /**
+     * Gets the default fetch size.
+     * @return the default fetch size
+     * @since 3.3.0
+     */
+    public Integer getDefaultFetchSize() {
+        return defaultFetchSize;
+    }
+
+    /**
+     * Sets the default fetch size.
+     * @param defaultFetchSize the new default fetch size
+     * @since 3.3.0
+     */
+    public void setDefaultFetchSize(Integer defaultFetchSize) {
+        this.defaultFetchSize = defaultFetchSize;
     }
 
 }

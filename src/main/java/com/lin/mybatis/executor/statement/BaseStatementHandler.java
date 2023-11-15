@@ -53,13 +53,35 @@ public abstract class BaseStatementHandler implements StatementHandler {
     @Override
     public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
         Statement statement = instantiateStatement(connection);
-        // 参数设置，可以被抽取，提供配置
-        statement.setQueryTimeout(350);
-        statement.setFetchSize(10000);
-
+        setStatementTimeout(statement, transactionTimeout);
+        setFetchSize(statement);
         return statement;
     }
 
     protected abstract Statement instantiateStatement(Connection connection) throws SQLException;
+
+    protected void setStatementTimeout(Statement stmt, Integer transactionTimeout) throws SQLException {
+        Integer queryTimeout = mappedStatement.getTimeout();
+        if (queryTimeout != null) {
+            stmt.setQueryTimeout(queryTimeout);
+            return;
+        }
+        queryTimeout = configuration.getDefaultStatementTimeout();
+        if (queryTimeout != null) {
+            stmt.setQueryTimeout(queryTimeout);
+        }
+    }
+
+    protected void setFetchSize(Statement stmt) throws SQLException {
+        Integer fetchSize = mappedStatement.getFetchSize();
+        if (fetchSize != null) {
+            stmt.setFetchSize(fetchSize);
+            return;
+        }
+        Integer defaultFetchSize = configuration.getDefaultFetchSize();
+        if (defaultFetchSize != null) {
+            stmt.setFetchSize(defaultFetchSize);
+        }
+    }
 
 }

@@ -69,10 +69,11 @@ public class MapperBuilderAssistant extends BaseBuilder {
         return currentNamespace + "." + base;
     }
 
-    public MappedStatement addMappedStatement(String id, SqlSource sqlSource, SqlCommandType sqlCommandType,
-                                   Class<?> parameterTypeClass, String resultMap, Class<?> resultTypeClass, String databaseId, LanguageDriver langDriver) {
+    public MappedStatement addMappedStatement(String id, SqlSource sqlSource, SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout,
+                                              Class<?> parameterTypeClass, String resultMap, Class<?> resultTypeClass, String databaseId, LanguageDriver langDriver) {
         id = applyCurrentNamespace(id, false);
-        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType, resultTypeClass);
+        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType, resultTypeClass)
+                .fetchSize(fetchSize).timeout(timeout);
         statementBuilder.resultMaps(getStatementResultMaps(resultMap, resultTypeClass, id));
         MappedStatement statement = statementBuilder.build();
 

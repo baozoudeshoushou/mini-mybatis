@@ -41,6 +41,9 @@ public class XMLStatementBuilder extends BaseBuilder {
         String lang = context.getStringAttribute("lang");
         LanguageDriver langDriver = getLanguageDriver(lang);
 
+        Integer fetchSize = context.getIntAttribute("fetchSize");
+        Integer timeout = context.getIntAttribute("timeout");
+
         // 结果类型
         String resultType = context.getStringAttribute("resultType");
         Class<?> resultTypeClass = resolveClass(resultType);
@@ -50,7 +53,7 @@ public class XMLStatementBuilder extends BaseBuilder {
         // 解析成 SqlSource. DynamicSqlSource/RawSqlSource
         SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
 
-        builderAssistant.addMappedStatement(id, sqlSource, sqlCommandType,
+        builderAssistant.addMappedStatement(id, sqlSource, sqlCommandType, fetchSize, timeout,
                 parameterTypeClass, resultMap, resultTypeClass, databaseId, langDriver);
     }
 
