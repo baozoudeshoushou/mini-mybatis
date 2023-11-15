@@ -43,8 +43,9 @@ public class SqlSessionTest {
     @Test
     void shouldSelectOneSysUserWithId() {
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        SysUser sysUser = sqlSession.selectOne("com.lin.mybatis.mapper.SysUserMapper.queryUserInfoById", 3L);
-        Assertions.assertEquals(3L, sysUser.getId());
+        Long id = 2030009L;
+        SysUser sysUser = sqlSession.selectOne("com.lin.mybatis.mapper.SysUserMapper.queryUserInfoById", id);
+        Assertions.assertEquals(id, sysUser.getId());
         System.out.println(sysUser);
         sqlSession.close();
     }
@@ -55,6 +56,39 @@ public class SqlSessionTest {
         SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
         List<SysUser> sysUserList = sysUserMapper.findAll();
         System.out.println(sysUserList);
+    }
+
+    @Test
+    void shouldInsertSysUser() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUser sysUser = new SysUser();
+        sysUser.setId(1L);
+        sysUser.setTenantId("xxx");
+        sysUser.setName("MM");
+        int count = sqlSession.insert("com.lin.mybatis.mapper.SysUserMapper.insertSysUser", sysUser);
+        Assertions.assertEquals(1, count);
+        sqlSession.commit();
+    }
+
+    @Test
+    void shouldUpdateUserName() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUser sysUser = new SysUser();
+        sysUser.setId(2030009L);
+        sysUser.setName("MMXX");
+        int count = sqlSession.update("com.lin.mybatis.mapper.SysUserMapper.updateUserName", sysUser);
+        Assertions.assertEquals(1, count);
+        sqlSession.commit();
+    }
+
+    @Test
+    void shouldDeleteUserById() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUser sysUser = new SysUser();
+        sysUser.setId(2030009L);
+        int count = sqlSession.update("com.lin.mybatis.mapper.SysUserMapper.deleteUserById", sysUser);
+        Assertions.assertEquals(1, count);
+        sqlSession.commit();
     }
 
 }

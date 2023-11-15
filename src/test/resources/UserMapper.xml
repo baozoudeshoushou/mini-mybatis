@@ -15,4 +15,16 @@
         limit 10
     </select>
 
+    <insert id="insertSysUser" parameterType="com.lin.mybatis.entity.SysUser" >
+        INSERT INTO sys_user (`tenant_id`, `name`) VALUES (#{tenantId}, #{name})
+    </insert>
+
+    <update id="updateUserName" parameterType="com.lin.mybatis.entity.SysUser" >
+        UPDATE sys_user SET `name` = #{name} WHERE `id` = #{id}
+    </update>
+
+    <update id="deleteUserById" parameterType="com.lin.mybatis.entity.SysUser" >
+        DELETE FROM sys_user WHERE `id` = #{id}
+    </update>
+
 </mapper>

@@ -74,6 +74,69 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
+    public int insert(String statement) {
+        return insert(statement, null);
+    }
+
+    @Override
+    public int insert(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public int update(String statement) {
+        return update(statement, null);
+    }
+
+    @Override
+    public int update(String statement, Object parameter) {
+        try {
+            MappedStatement ms = configuration.getMappedStatement(statement);
+            return executor.update(ms, parameter);
+        } catch (SQLException e) {
+            throw new MybatisException("Error updating database.  Cause: " + e, e);
+        }
+    }
+
+    @Override
+    public int delete(String statement) {
+        return update(statement, null);
+    }
+
+    @Override
+    public int delete(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public void commit() {
+        commit(false);
+    }
+
+    @Override
+    public void commit(boolean force) {
+        try {
+            executor.commit(isCommitOrRollbackRequired(false));
+        } catch (SQLException e) {
+            throw new MybatisException("Error committing transaction.  Cause: " + e, e);
+        }
+    }
+
+    @Override
+    public void rollback() {
+        rollback(false);
+    }
+
+    @Override
+    public void rollback(boolean force) {
+        try {
+            executor.rollback(isCommitOrRollbackRequired(force));
+        } catch (SQLException e) {
+            throw new MybatisException("Error rolling back transaction.  Cause: " + e, e);
+        }
+    }
+
+    @Override
     public Configuration getConfiguration() {
         return configuration;
     }

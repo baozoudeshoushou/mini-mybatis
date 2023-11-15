@@ -56,9 +56,11 @@ public class DefaultParameterHandler implements ParameterHandler {
                     value = null;
                 }
                 else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+                    // Integer 等基础类型，直接走这里
                     value = parameterObject;
                 }
                 else {
+                    // Bean 类，用反射获取值
                     MetaObject metaObject = configuration.newMetaObject(parameterObject);
                     value = metaObject.getValue(propertyName);
                 }

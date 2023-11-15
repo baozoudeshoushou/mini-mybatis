@@ -33,11 +33,6 @@ public class XMLStatementBuilder extends BaseBuilder {
         SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
         boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
-        // 先只处理 SELECT
-        if (!isSelect) {
-            return;
-        }
-
         // 参数类型
         String parameterType = context.getStringAttribute("parameterType");
         Class<?> parameterTypeClass = resolveClass(parameterType);

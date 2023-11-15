@@ -11,7 +11,7 @@ public class SysUser {
 
     private Long id;
 
-    private String tenant_id;
+    private String tenantId;
 
     private String name;
 
@@ -27,12 +27,12 @@ public class SysUser {
         this.id = id;
     }
 
-    public String getTenant_id() {
-        return tenant_id;
+    public String getTenantId() {
+        return tenantId;
     }
 
-    public void setTenant_id(String tenant_id) {
-        this.tenant_id = tenant_id;
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
     public String getName() {
@@ -63,7 +63,7 @@ public class SysUser {
     public String toString() {
         return "SysUser{" +
                 "id=" + id +
-                ", tenant_id='" + tenant_id + '\'' +
+                ", tenant_id='" + tenantId + '\'' +
                 ", name='" + name + '\'' +
                 ", update_time=" + update_time +
                 ", version=" + version +

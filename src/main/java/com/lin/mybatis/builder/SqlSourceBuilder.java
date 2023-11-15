@@ -63,6 +63,7 @@ public class SqlSourceBuilder extends BaseBuilder {
 
         private ParameterMapping buildParameterMapping(String content) {
             Map<String, String> propertiesMap = new ParameterExpression(content);
+            // property 为 #{} 里的表达式
             String property = propertiesMap.get("property");
             Class<?> propertyType;
             if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
