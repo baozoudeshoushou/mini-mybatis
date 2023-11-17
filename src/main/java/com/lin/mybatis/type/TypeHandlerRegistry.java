@@ -40,6 +40,10 @@ public class TypeHandlerRegistry {
         register(JdbcType.CHAR, new StringTypeHandler());
         register(JdbcType.VARCHAR, new StringTypeHandler());
         register(JdbcType.LONGVARCHAR, new StringTypeHandler());
+
+        register(Object.class, new ObjectTypeHandler());
+        register(Object.class, JdbcType.OTHER, new ObjectTypeHandler());
+        register(JdbcType.OTHER, new ObjectTypeHandler());
     }
 
     public void register(JdbcType jdbcType, TypeHandler<?> handler) {
