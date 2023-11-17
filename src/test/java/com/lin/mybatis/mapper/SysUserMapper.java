@@ -1,5 +1,6 @@
 package com.lin.mybatis.mapper;
 
+import com.lin.mybatis.annotations.Param;
 import com.lin.mybatis.entity.SysUser;
 
 import java.util.List;
@@ -11,5 +12,13 @@ import java.util.List;
 public interface SysUserMapper {
 
     List<SysUser> findAll();
+
+    List<SysUser> queryUserInfoById(SysUser user);
+
+    int insertSysUser(SysUser user);
+
+    int updateUserName(@Param("name") String name, @Param("id") Long id);
+
+    int deleteUserById(Long id);
 
 }

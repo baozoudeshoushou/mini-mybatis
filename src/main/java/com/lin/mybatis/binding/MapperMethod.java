@@ -3,10 +3,14 @@ package com.lin.mybatis.binding;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.mapping.MappedStatement;
 import com.lin.mybatis.mapping.SqlCommandType;
+import com.lin.mybatis.reflection.ParamNameResolver;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.session.SqlSession;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.SortedMap;
 
 /**
  * @Author linjiayi5
@@ -16,27 +20,39 @@ public class MapperMethod {
 
     private final SqlCommand command;
 
+    private final MethodSignature method;
+
     public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
         this.command = new SqlCommand(config, mapperInterface, method);
+        this.method = new MethodSignature(config, mapperInterface, method);
     }
 
     public Object execute(SqlSession sqlSession, Object[] args) {
         Object result;
         switch (command.getType()) {
             case INSERT: {
-                result = null;
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.insert(command.getName(), param);
                 break;
             }
             case UPDATE: {
-                result = null;
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.update(command.getName(), param);
                 break;
             }
             case DELETE: {
-                result = null;
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.delete(command.getName(), param);
                 break;
             }
             case SELECT: {
-                result = executeForMany(sqlSession, args);
+                Object param = method.convertArgsToSqlCommandParam(args);
+                if (method.returnsMany) {
+                    result = sqlSession.selectList(command.getName(), param);
+                }
+                else {
+                    result = sqlSession.selectOne(command.getName(), param);
+                }
                 break;
             }
             default: throw new MybatisException("Unknown execution method for: " + command.getName());
@@ -46,7 +62,24 @@ public class MapperMethod {
     }
 
     private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
-        return sqlSession.selectList(command.getName(), args);
+        // TODO
+        return null;
+    }
+
+
+    /** 继承 HashMap，实现更严格的 get 方法*/
+    public static class ParamMap<V> extends HashMap<String, V> {
+
+        private static final long serialVersionUID = -2212268410512043556L;
+
+        @Override
+        public V get(Object key) {
+            if (!super.containsKey(key)) {
+                throw new MybatisException("Parameter '" + key + "' not found. Available parameters are " + keySet());
+            }
+            return super.get(key);
+        }
+
     }
 
     public static class SqlCommand {
@@ -103,6 +136,24 @@ public class MapperMethod {
             }
 
             return null;
+        }
+
+    }
+
+    public static class MethodSignature {
+
+        private final boolean returnsMany;
+        private final Class<?> returnType;
+        private final ParamNameResolver paramNameResolver;
+
+        public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
+            this.returnType = method.getReturnType();
+            this.returnsMany = configuration.getObjectFactory().isCollection(returnType) || returnType.isArray();
+            this.paramNameResolver = new ParamNameResolver(configuration, method);
+        }
+
+        public Object convertArgsToSqlCommandParam(Object[] args) {
+            return paramNameResolver.getNamedParams(args);
         }
 
     }

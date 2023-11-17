@@ -41,6 +41,14 @@ public class SqlSessionTest {
     }
 
     @Test
+    void shouldGetSysUserMapperAndFindAll() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
+        List<SysUser> sysUserList = sysUserMapper.findAll();
+        System.out.println(sysUserList);
+    }
+
+    @Test
     void shouldSelectOneSysUserWithId() {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Long id = 2030009L;
@@ -51,11 +59,16 @@ public class SqlSessionTest {
     }
 
     @Test
-    void shouldGetSysUserMapperAndFindAll() {
+    void shouldGetMapperAndSelectOneSysUserWithId() {
         SqlSession sqlSession = sqlSessionFactory.openSession();
+        Long id = 2030011L;
         SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
-        List<SysUser> sysUserList = sysUserMapper.findAll();
-        System.out.println(sysUserList);
+        SysUser sysUser = new SysUser();
+        sysUser.setId(id);
+        List<SysUser> sysUsers = sysUserMapper.queryUserInfoById(sysUser);
+        Assertions.assertEquals(1, sysUsers.size());
+        System.out.println(sysUsers);
+        sqlSession.close();
     }
 
     @Test
@@ -71,12 +84,37 @@ public class SqlSessionTest {
     }
 
     @Test
+    void shouldGetMapperAndInsertSysUser() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUserMapper mapper = sqlSession.getMapper(SysUserMapper.class);
+        SysUser sysUser = new SysUser();
+        sysUser.setId(1L);
+        sysUser.setTenantId("xxx");
+        sysUser.setName("MM");
+        int count = mapper.insertSysUser(sysUser);
+        Assertions.assertEquals(1, count);
+        sqlSession.commit();
+    }
+
+    @Test
     void shouldUpdateUserName() {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         SysUser sysUser = new SysUser();
-        sysUser.setId(2030009L);
+        sysUser.setId(1L);
         sysUser.setName("MMXX");
         int count = sqlSession.update("com.lin.mybatis.mapper.SysUserMapper.updateUserName", sysUser);
+        Assertions.assertEquals(1, count);
+        sqlSession.commit();
+    }
+
+    @Test
+    void shouldGetMapperAndUpdateUserName() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUserMapper mapper = sqlSession.getMapper(SysUserMapper.class);
+        SysUser sysUser = new SysUser();
+        sysUser.setId(1L);
+        sysUser.setName("MMXX");
+        int count = mapper.updateUserName("MMXX", 1L);
         Assertions.assertEquals(1, count);
         sqlSession.commit();
     }
