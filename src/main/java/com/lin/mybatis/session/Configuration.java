@@ -4,6 +4,7 @@ import com.lin.mybatis.binding.MapperRegistry;
 import com.lin.mybatis.datasource.HikariDatasourceFactory;
 import com.lin.mybatis.executor.Executor;
 import com.lin.mybatis.executor.SimpleExecutor;
+import com.lin.mybatis.mapping.ResultMap;
 import com.lin.mybatis.reflection.DefaultReflectorFactory;
 import com.lin.mybatis.reflection.MetaObject;
 import com.lin.mybatis.reflection.ReflectorFactory;
@@ -62,6 +63,8 @@ public class Configuration {
     protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
 
     protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
+
+    protected final Map<String, ResultMap> resultMaps = new ConcurrentHashMap<>();
 
     protected final Set<String> loadedResources = new HashSet<>();
 
@@ -228,6 +231,14 @@ public class Configuration {
      */
     public void setDefaultFetchSize(Integer defaultFetchSize) {
         this.defaultFetchSize = defaultFetchSize;
+    }
+
+    public ResultMap getResultMap(String id) {
+        return resultMaps.get(id);
+    }
+
+    public void addResultMap(ResultMap resultMap) {
+        resultMaps.put(resultMap.getId(), resultMap);
     }
 
 }

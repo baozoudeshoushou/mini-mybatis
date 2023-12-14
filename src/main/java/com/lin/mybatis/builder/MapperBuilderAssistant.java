@@ -1,10 +1,7 @@
 package com.lin.mybatis.builder;
 
 import com.lin.mybatis.exceptions.MybatisException;
-import com.lin.mybatis.mapping.MappedStatement;
-import com.lin.mybatis.mapping.ResultMap;
-import com.lin.mybatis.mapping.SqlCommandType;
-import com.lin.mybatis.mapping.SqlSource;
+import com.lin.mybatis.mapping.*;
 import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.session.Configuration;
 
@@ -69,6 +66,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
         return currentNamespace + "." + base;
     }
 
+    public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(configuration, id, type, resultMappings);
+        ResultMap resultMap = inlineResultMapBuilder.build();
+        configuration.addResultMap(resultMap);
+        return resultMap;
+    }
+
     public MappedStatement addMappedStatement(String id, SqlSource sqlSource, SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout,
                                               Class<?> parameterTypeClass, String resultMap, Class<?> resultTypeClass, String databaseId, LanguageDriver langDriver) {
         id = applyCurrentNamespace(id, false);
@@ -83,23 +87,23 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
     /**
      * 获取 ResultMaps，逻辑是有配置 resultMap 就用 resultMap，没有就用 resultType
+     * 一般 resultType 即可满足，会自动创建一个 ResultMap，基于属性名称映射列到 JavaBean 的属性上*
      */
     private List<ResultMap> getStatementResultMaps(String resultMap, Class<?> resultType, String statementId) {
         resultMap = applyCurrentNamespace(resultMap, true);
 
         List<ResultMap> resultMaps = new ArrayList<>();
         if (resultMap != null) {
-            // TODO
-//            String[] resultMapNames = resultMap.split(",");
-//            for (String resultMapName : resultMapNames) {
-//                try {
-//                    resultMaps.add(configuration.getResultMap(resultMapName.trim()));
-//                }
-//                catch (IllegalArgumentException e) {
-//                    throw new MybatisException(
-//                            "Could not find result map '" + resultMapName + "' referenced from '" + statementId + "'", e);
-//                }
-//            }
+            String[] resultMapNames = resultMap.split(",");
+            for (String resultMapName : resultMapNames) {
+                try {
+                    resultMaps.add(configuration.getResultMap(resultMapName.trim()));
+                }
+                catch (IllegalArgumentException e) {
+                    throw new MybatisException(
+                            "Could not find result map '" + resultMapName + "' referenced from '" + statementId + "'", e);
+                }
+            }
         }
         else if (resultType != null) {
             ResultMap inlineResultMap = new ResultMap.Builder(configuration, statementId + "-Inline", resultType, new ArrayList<>()).build();

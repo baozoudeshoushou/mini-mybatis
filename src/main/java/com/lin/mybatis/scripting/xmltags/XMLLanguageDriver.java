@@ -7,6 +7,7 @@ import com.lin.mybatis.mapping.SqlSource;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.scripting.defaults.DefaultParameterHandler;
+import com.lin.mybatis.scripting.defaults.RawSqlSource;
 import com.lin.mybatis.session.Configuration;
 
 /**
@@ -27,8 +28,8 @@ public class XMLLanguageDriver implements LanguageDriver {
 
     @Override
     public SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType) {
-        // TODO 重载方法，不紧要
-        return null;
+        // 注解形式的 SQL
+        return new RawSqlSource(configuration, script, parameterType);
     }
 
 }

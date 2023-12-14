@@ -1,6 +1,7 @@
 package com.lin.mybatis.mapper;
 
 import com.lin.mybatis.annotations.Param;
+import com.lin.mybatis.annotations.Select;
 import com.lin.mybatis.entity.SysUser;
 
 import java.util.List;
@@ -20,5 +21,8 @@ public interface SysUserMapper {
     int updateUserName(@Param("name") String name, @Param("id") Long id);
 
     int deleteUserById(Long id);
+
+    @Select("Select * FROM sys_user WHERE id = #{id}")
+    SysUser selectUserById(Long id);
 
 }

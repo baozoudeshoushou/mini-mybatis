@@ -1,5 +1,6 @@
 package com.lin.mybatis.binding;
 
+import com.lin.mybatis.builder.annotation.MapperAnnotationBuilder;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.session.SqlSession;
@@ -46,8 +47,9 @@ public class MapperRegistry {
 
         knownMappers.put(type, new MapperProxyFactory<>(type));
 
-        // TODO parse the mapper annotation
-
+        // parse the mapper annotation
+        MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        parser.parse();
     }
 
 }

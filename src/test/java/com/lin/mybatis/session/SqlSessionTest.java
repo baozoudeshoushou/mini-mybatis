@@ -129,4 +129,12 @@ public class SqlSessionTest {
         sqlSession.commit();
     }
 
+    @Test
+    void shouldGetSysUserMapperAndSelectUserByIdWithAnnotation() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
+        SysUser sysUser = sysUserMapper.selectUserById(1L);
+        System.out.println(sysUser);
+    }
+
 }
