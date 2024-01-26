@@ -2,6 +2,7 @@ package com.lin.mybatis.builder;
 
 import com.lin.mybatis.session.Configuration;
 import com.lin.mybatis.type.TypeAliasRegistry;
+import com.lin.mybatis.type.TypeHandler;
 import com.lin.mybatis.type.TypeHandlerRegistry;
 
 /**
@@ -35,6 +36,14 @@ public class BaseBuilder {
 
     protected <T> Class<? extends T> resolveAlias(String alias) {
         return typeAliasRegistry.resolveAlias(alias);
+    }
+
+    protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
+        if (typeHandlerType == null) {
+            return null;
+        }
+
+        return typeHandlerRegistry.getMappingTypeHandler(typeHandlerType);
     }
 
 }
