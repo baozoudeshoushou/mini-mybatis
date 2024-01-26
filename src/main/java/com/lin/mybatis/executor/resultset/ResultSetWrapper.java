@@ -22,7 +22,7 @@ public class ResultSetWrapper {
     private final List<String> classNames = new ArrayList<>();
     private final List<JdbcType> jdbcTypes = new ArrayList<>();
     private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<>();
-    private Map<String, List<String>> mappedColumnNamesMap = new HashMap<>();
+    private Map<String, Set<String>> mappedColumnNamesMap = new HashMap<>();
     private Map<String, List<String>> unMappedColumnNamesMap = new HashMap<>();
 
     public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
@@ -41,6 +41,15 @@ public class ResultSetWrapper {
         return resultSet;
     }
 
+    public Set<String> getMappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
+        Set<String> mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
+        if (mappedColumnNames == null) {
+            loadMappedAndUnmappedColumnNames(resultMap, columnPrefix);
+            mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
+        }
+        return mappedColumnNames;
+    }
+
     public List<String> getUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
         List<String> unMappedColumnNames = unMappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
         if (unMappedColumnNames == null) {
@@ -51,7 +60,7 @@ public class ResultSetWrapper {
     }
 
     private void loadMappedAndUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
-        List<String> mappedColumnNames = new ArrayList<>();
+        Set<String> mappedColumnNames = new HashSet<>();
         List<String> unmappedColumnNames = new ArrayList<>();
         final String upperColumnPrefix = columnPrefix == null ? null : columnPrefix.toUpperCase(Locale.ENGLISH);
         final Set<String> mappedColumns = prependPrefixes(resultMap.getMappedColumns(), upperColumnPrefix);
