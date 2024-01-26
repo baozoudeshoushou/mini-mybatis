@@ -1,6 +1,7 @@
 package com.lin.mybatis.session;
 
 import com.lin.mybatis.entity.SysUser;
+import com.lin.mybatis.entity.TheSysUser;
 import com.lin.mybatis.io.Resources;
 import com.lin.mybatis.mapper.SysUserMapper;
 import org.junit.jupiter.api.Assertions;
@@ -134,6 +135,14 @@ public class SqlSessionTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
         SysUser sysUser = sysUserMapper.selectUserById(1L);
+        System.out.println(sysUser);
+    }
+
+    @Test
+    void shouldGetTheSysUserMapperAndSelectUserByIdWithAnnotation() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        SysUserMapper sysUserMapper = sqlSession.getMapper(SysUserMapper.class);
+        TheSysUser sysUser = sysUserMapper.selectTheUserById(1L);
         System.out.println(sysUser);
     }
 

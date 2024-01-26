@@ -19,12 +19,8 @@ import com.lin.mybatis.session.RowBounds;
 import com.lin.mybatis.type.TypeHandler;
 import com.lin.mybatis.type.TypeHandlerRegistry;
 
-import java.lang.reflect.Method;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * @author linjiayi5
@@ -177,7 +173,8 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         if (rowValue != null && !typeHandlerRegistry.hasTypeHandler(resultMap.getType())) {
             // 不存在类型处理器
             final MetaObject metaObject = configuration.newMetaObject(rowValue);
-            applyAutomaticMappings(rsw, resultMap, metaObject, null);
+            boolean foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, null);
+            foundValues = applyPropertyMappings(rsw, resultMap, metaObject, null) || foundValues;
         }
         return rowValue;
     }
@@ -227,6 +224,25 @@ public class DefaultResultSetHandler implements ResultSetHandler {
                     if (value != null || !propertyType.isPrimitive()) {
                         metaObject.setValue(property, value);
                     }
+                }
+            }
+        }
+        return foundValues;
+    }
+
+    private boolean applyPropertyMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
+        final Set<String> mappedColumnNames = rsw.getMappedColumnNames(resultMap, columnPrefix);
+        boolean foundValues = false;
+        List<ResultMapping> resultMappings = resultMap.getResultMappings();
+        for (ResultMapping resultMapping : resultMappings) {
+            String column = resultMapping.getColumn();
+            if (column != null && mappedColumnNames.contains(column.toUpperCase(Locale.ENGLISH))) {
+                final TypeHandler<?> typeHandler = resultMapping.getTypeHandler();
+                Object value = typeHandler.getResult(rsw.getResultSet(), column);
+                final String property = resultMapping.getProperty();
+                if (property != null && value != null) {
+                    metaObject.setValue(property, value);
+                    foundValues = true;
                 }
             }
         }

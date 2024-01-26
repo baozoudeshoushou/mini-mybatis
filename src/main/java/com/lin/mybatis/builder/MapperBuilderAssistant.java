@@ -2,8 +2,10 @@ package com.lin.mybatis.builder;
 
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.mapping.*;
+import com.lin.mybatis.reflection.MetaClass;
 import com.lin.mybatis.scripting.LanguageDriver;
 import com.lin.mybatis.session.Configuration;
+import com.lin.mybatis.type.TypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +69,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        id = applyCurrentNamespace(id, false);
         ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(configuration, id, type, resultMappings);
         ResultMap resultMap = inlineResultMapBuilder.build();
         configuration.addResultMap(resultMap);
@@ -76,8 +79,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
     public MappedStatement addMappedStatement(String id, SqlSource sqlSource, SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout,
                                               Class<?> parameterTypeClass, String resultMap, Class<?> resultTypeClass, String databaseId, LanguageDriver langDriver) {
         id = applyCurrentNamespace(id, false);
-        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType, resultTypeClass)
-                .fetchSize(fetchSize).timeout(timeout);
+        MappedStatement.Builder statementBuilder = new MappedStatement
+                .Builder(configuration, id, sqlSource, sqlCommandType, resultTypeClass)
+                .fetchSize(fetchSize)
+                .timeout(timeout);
         statementBuilder.resultMaps(getStatementResultMaps(resultMap, resultTypeClass, id));
         MappedStatement statement = statementBuilder.build();
 
@@ -113,5 +118,27 @@ public class MapperBuilderAssistant extends BaseBuilder {
         return resultMaps;
     }
 
+    public ResultMapping buildResultMapping(Class<?> resultType, String property, String column, Class<?> javaType, List<ResultFlag> flags) {
+        Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
+        TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, null);
+        ResultMapping.Builder builder = new ResultMapping
+                .Builder(configuration, property, column, javaTypeClass)
+                .typeHandler(typeHandlerInstance)
+                .flags(flags);
+        return builder.build();
+    }
+
+    private Class<?> resolveResultJavaType(Class<?> resultType, String property, Class<?> javaType) {
+        if (javaType == null && property != null) {
+            MetaClass metaResultType = MetaClass.forClass(resultType, configuration.getReflectorFactory());
+            javaType = metaResultType.getSetterType(property);
+        }
+
+        if (javaType == null) {
+            javaType = Object.class;
+        }
+
+        return javaType;
+    }
 
 }

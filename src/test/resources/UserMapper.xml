@@ -2,6 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lin.mybatis.mapper.SysUserMapper">
 
+    <resultMap id="theSysUserMap" type="com.lin.mybatis.entity.TheSysUser">
+        <id column="id" property="theId"/>
+        <result column="tenant_id" property="theTenantId"/>
+        <result column="name" property="theName"/>
+        <result column="update_time" property="update_time"/>
+        <result column="version" property="theVersion"/>
+    </resultMap>
+
     <select id="findAll" resultType="com.lin.mybatis.entity.SysUser">
         SELECT *
         FROM sys_user

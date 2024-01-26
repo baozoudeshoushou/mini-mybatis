@@ -1,11 +1,9 @@
 package com.lin.mybatis.builder.annotation;
 
-import com.lin.mybatis.annotations.Delete;
-import com.lin.mybatis.annotations.Insert;
-import com.lin.mybatis.annotations.Select;
-import com.lin.mybatis.annotations.Update;
+import com.lin.mybatis.annotations.*;
 import com.lin.mybatis.binding.MapperMethod;
 import com.lin.mybatis.builder.MapperBuilderAssistant;
+import com.lin.mybatis.mapping.ResultMapping;
 import com.lin.mybatis.mapping.SqlCommandType;
 import com.lin.mybatis.mapping.SqlSource;
 import com.lin.mybatis.reflection.TypeParameterResolver;
@@ -53,6 +51,9 @@ public class MapperAnnotationBuilder {
                 if (!canHaveStatement(method)) {
                     continue;
                 }
+                if (getAnnotationWrapper(method, Arrays.asList(Select.class)) != null && method.getAnnotation(ResultMap.class) == null) {
+                    parseResultMap(method);
+                }
                 parseStatement(method);
             }
         }
@@ -63,11 +64,19 @@ public class MapperAnnotationBuilder {
         return !method.isBridge() && !method.isDefault();
     }
 
+    private String parseResultMap(Method method) {
+        Class<?> returnType = getReturnType(method, type);
+        String resultMapId = generateResultMapName(method);
+        List<ResultMapping> resultMappings = new ArrayList<>();
+        assistant.addResultMap(resultMapId, returnType, resultMappings);
+        return resultMapId;
+    }
+
     void parseStatement(Method method) {
         final Class<?> parameterTypeClass = getParameterType(method);
         final LanguageDriver languageDriver = getLanguageDriver(method);
 
-        AnnotationWrapper statementAnnotation = getAnnotationWrapper(method, statementAnnotationTypes);
+        AnnotationWrapper statementAnnotation =  getAnnotationWrapper(method, statementAnnotationTypes);
         if (statementAnnotation != null) {
             final SqlSource sqlSource = buildSqlSource(statementAnnotation.getAnnotation(), parameterTypeClass, languageDriver, method);
             SqlCommandType sqlCommandType = statementAnnotation.getSqlCommandType();
@@ -80,9 +89,12 @@ public class MapperAnnotationBuilder {
 
             String resultMapId = null;
             if (isSelect) {
-                resultMapId = generateResultMapName(method);
-                Class<?> returnType = getReturnType(method, type);
-                assistant.addResultMap(resultMapId, returnType, new ArrayList<>());
+                ResultMap resultMapAnnotation = method.getAnnotation(ResultMap.class);
+                if (resultMapAnnotation != null) {
+                    resultMapId = String.join(",", resultMapAnnotation.value());
+                } else {
+                    resultMapId = generateResultMapName(method);
+                }
             }
 
             assistant.addMappedStatement(mappedStatementId, sqlSource, sqlCommandType, fetchSize, timeout,

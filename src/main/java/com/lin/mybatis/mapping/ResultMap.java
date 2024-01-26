@@ -4,6 +4,7 @@ import com.lin.mybatis.session.Configuration;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -38,6 +39,12 @@ public class ResultMap {
 
         public ResultMap build() {
             resultMap.mappedColumns = new HashSet<>();
+            for (ResultMapping resultMapping : resultMap.resultMappings) {
+                String column = resultMapping.getColumn();
+                if (column != null) {
+                    resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
+                }
+            }
             return resultMap;
         }
 

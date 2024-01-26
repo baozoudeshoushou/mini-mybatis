@@ -2,13 +2,19 @@ package com.lin.mybatis.builder.xml;
 
 import com.lin.mybatis.builder.BaseBuilder;
 import com.lin.mybatis.builder.MapperBuilderAssistant;
+import com.lin.mybatis.builder.ResultMapResolver;
 import com.lin.mybatis.exceptions.MybatisException;
 import com.lin.mybatis.io.Resources;
+import com.lin.mybatis.mapping.ResultFlag;
+import com.lin.mybatis.mapping.ResultMap;
+import com.lin.mybatis.mapping.ResultMapping;
 import com.lin.mybatis.parsing.XNode;
 import com.lin.mybatis.parsing.XPathParser;
 import com.lin.mybatis.session.Configuration;
 
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,9 +37,11 @@ public class XMLMapperBuilder extends BaseBuilder {
 
     public void parse() {
         if (!configuration.isResourceLoaded(resource)) {
+            // 解析配置
             configurationElement(parser.evalNode("/mapper"));
             // 防止重复加载
             configuration.addLoadedResource(resource);
+            // 创建 mapper
             bindMapperForNamespace();
         }
     }
@@ -44,6 +52,9 @@ public class XMLMapperBuilder extends BaseBuilder {
             throw new MybatisException("Mapper's namespace cannot be empty");
         }
         builderAssistant.setCurrentNamespace(namespace);
+        // 解析 resultMap
+        resultMapElements(context.evalNodes("/mapper/resultMap"));
+        // 解析 SQL
         buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     }
 
@@ -52,6 +63,49 @@ public class XMLMapperBuilder extends BaseBuilder {
             XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context);
             statementParser.parseStatementNode();
         }
+    }
+
+    private void resultMapElements(List<XNode> list) {
+        for (XNode resultMapNode : list) {
+            try {
+                resultMapElement(resultMapNode);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    private ResultMap resultMapElement(XNode resultMapNode) {
+        return resultMapElement(resultMapNode, Collections.emptyList(), null);
+    }
+
+    private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) {
+        String type = resultMapNode.getStringAttribute("type", resultMapNode.getStringAttribute("ofType",
+                resultMapNode.getStringAttribute("resultType", resultMapNode.getStringAttribute("javaType"))));
+        Class<?> typeClass = resolveClass(type);
+
+        List<ResultMapping> resultMappings = new ArrayList<>(additionalResultMappings);
+        List<XNode> resultChildren = resultMapNode.getChildren();
+        for (XNode resultChild : resultChildren) {
+            List<ResultFlag> flags = new ArrayList<>();
+            if ("id".equals(resultChild.getName())) {
+                flags.add(ResultFlag.ID);
+            }
+            ResultMapping resultMapping = buildResultMappingFromContext(resultChild, typeClass, flags);
+            resultMappings.add(resultMapping);
+        }
+
+        String id = resultMapNode.getStringAttribute("id");
+        ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, resultMappings);
+        return resultMapResolver.resolve();
+    }
+
+    private ResultMapping buildResultMappingFromContext(XNode context, Class<?> resultType, List<ResultFlag> flags) {
+        String property = context.getStringAttribute("property");
+        String column = context.getStringAttribute("column");
+        String javaType = context.getStringAttribute("javaType");
+        Class<?> javaTypeClass = resolveClass(javaType);
+        return builderAssistant.buildResultMapping(resultType, property, column, javaTypeClass, flags);
     }
 
     /**
