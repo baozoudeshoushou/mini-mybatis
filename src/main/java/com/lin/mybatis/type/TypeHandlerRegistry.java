@@ -3,10 +3,7 @@ package com.lin.mybatis.type;
 import com.lin.mybatis.session.Configuration;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -44,6 +41,11 @@ public class TypeHandlerRegistry {
         register(Object.class, new ObjectTypeHandler());
         register(Object.class, JdbcType.OTHER, new ObjectTypeHandler());
         register(JdbcType.OTHER, new ObjectTypeHandler());
+
+        register(Date.class, new DateTypeHandler());
+        register(JdbcType.TIMESTAMP, new DateTypeHandler());
+
+        register(java.sql.Timestamp.class, new SqlTimestampTypeHandler());
     }
 
     public void register(JdbcType jdbcType, TypeHandler<?> handler) {
@@ -92,6 +94,10 @@ public class TypeHandlerRegistry {
             }
         }
         return (TypeHandler<T>) handler;
+    }
+
+    public TypeHandler<?> getMappingTypeHandler(Class<? extends TypeHandler<?>> handlerType) {
+        return allTypeHandlersMap.get(handlerType);
     }
 
 }
