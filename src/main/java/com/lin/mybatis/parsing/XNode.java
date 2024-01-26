@@ -17,6 +17,8 @@ public class XNode {
 
     private final Node node;
 
+    private final String name;
+
     private final XPathParser xpathParser;
 
     private final String body;
@@ -26,6 +28,7 @@ public class XNode {
     public XNode(XPathParser xpathParser, Node node) {
         this.xpathParser = xpathParser;
         this.node = node;
+        this.name = node.getNodeName();
         this.attributes = parseAttributes(node);
         this.body = parseBody(node);
     }
@@ -155,6 +158,10 @@ public class XNode {
 
     public Node getNode() {
         return node;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }
